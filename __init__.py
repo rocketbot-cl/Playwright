@@ -32,7 +32,7 @@ cur_path = base_path + 'modules' + os.sep + 'playwright' + os.sep + 'libs' + os.
 if cur_path not in sys.path:
     sys.path.append(cur_path)
 
-global _ensure_playwright_browsers_installed, time, sleep, glob, playwright_cli
+global playwright_cli
 from PlaywrightObject import PlaywrightObject
 from playwright.__main__ import main as playwright_cli
 import os
@@ -67,8 +67,6 @@ def _to_bool(v):
     if v is None:
         return False
     return str(v).strip().lower() in ("1", "true", "yes", "y", "si")
-
-
 
 import os
 import sys
