@@ -166,50 +166,45 @@
                         "default": null
                     },
                     {
-                        "type": "folder_select",
+                        "type": "file_select",
                         "placeholder": {
-                            "es": "C:/Users/user/Desktop",
-                            "en": "C:/Users/user/Desktop",
-                            "pr": "C:/Users/user/Desktop"
+                            "es": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+                            "en": "C:/Program Files/Google/Chrome/Application/chrome.exe",
+                            "pr": "C:/Program Files/Google/Chrome/Application/chrome.exe"
                         },
                         "title": {
-                            "es": "Carpeta de descarga:",
-                            "en": "Download folder:",
-                            "pr": "Pasta de download:"
+                            "es": "Ejecutable del navegador:",
+                            "en": "Browser executable:",
+                            "pr": "Executável do navegador:"
                         },
                         "description": {
-                            "es": "Ruta de descarga predeterminada donde el comando de descarga guardará los archivos",
-                            "en": "Default download path where the Download Command will save files",
-                            "pr": "Caminho de download padrão onde o Comando de Download salvará os arquivos"
+                            "es": "Ruta del ejecutable de Google Chrome. Solo necesario si es que se usa dicho navegador.",
+                            "en": "Path to the Google Chrome executable. Only needed if using that browser.",
+                            "pr": "Caminho para o executável do Google Chrome. Somente necessário se estiver usando esse navegador."
                         },
-                        "id": "downloads_path",
+                        "id": "executable_path",
                         "css": "col-md-12",
                         "data_type": "str",
                         "default": null
                     },
                     {
-                        "type": "file_select",
+                        "type": "folder_select",
                         "placeholder": {
-                            "es": "C:/folder/profile.json",
-                            "en": "C:/folder/profile.json",
-                            "pr": "C:/folder/profile.json"
+                            "es": "C:/folder/profile/",
+                            "en": "C:/folder/profile/",
+                            "pr": "C:/folder/profile/"
                         },
                         "title": {
-                            "es": "Archivo de perfil:",
-                            "en": "Profile file:",
-                            "pr": "Arquivo de perfil:"
+                            "es": "Carpeta de perfil:",
+                            "en": "Profile folder:",
+                            "pr": "Pasta de perfil:"
                         },
                         "description": {
-                            "es": "Ruta del archivo de perfil de usuario para abrir el navegador",
-                            "en": "Profile file to open the opened browser",
-                            "pr": "Rota do arquivo de perfil do usuário para abrir o navegador"
+                            "es": "Ruta de la carpeta de perfil de usuario usada por navegador. Si se deja vacio, se creara uno temporal que se borrara al iniciar nuevamente sin una carpeta de perfil o al usar el comando Cerrar navegador.",
+                            "en": "Path to the user profile folder used by the browser. If left empty, a temporary one will be created that will be deleted upon restarting without a profile folder or using the Close Browser command.",
+                            "pr": "Caminho para a pasta de perfil do usuário usada pelo navegador. Se deixado vazio, um temporário será criado e excluído ao reiniciar sem uma pasta de perfil ou ao usar o comando Fechar Navegador."
                         },
-                        "help":{
-                            "es": "Use un nuevo archivo.json con '{}' para crear un nuevo perfil. Se guarda con el comando Cerrar Navegador.",
-                            "en": "Use a new .json file with '{}' to create a new profile. It is saved with the Close Browser command.",
-                            "pr": "Use um novo arquivo .json com '{}' para criar um novo perfil. Ele é salvo com o comando Fechar Navegador."
-                        },
-                        "id": "storage_state_path",
+                        "id": "profile_path",
                         "css": "col-md-12",
                         "data_type": "str",
                         "default": null
@@ -268,32 +263,6 @@
                         "css": "col-md-4",
                         "data_type": "str",
                         "required": true
-                    },
-                    {
-                        "type": "input",
-                        "placeholder": {
-                            "es": "Variable",
-                            "en": "Variable",
-                            "pr": "Variável"
-                        },
-                        "title": {
-                            "es": "Asignar resultado a variable:",
-                            "en": "Assign result to variable:",
-                            "pr": "Atribuir resultado a variável:"
-                        },
-                        "description": {
-                            "es": "Variable donde se almacenará el resultado de la conexión",
-                            "en": "Variable where the result of the connection will be stored",
-                            "pr": "Variável onde o resultado da conexão será armazenado"
-                        },
-                        "help": {
-                            "es": "Nombre de variable sin {}",
-                            "en": "Variable name without {}",
-                            "pr": "Nome da variável sem {}"
-                        },
-                        "remove_vars": true,
-                        "id": "result",
-                        "css": "col-md-12"
                     }
                 ]
             },
@@ -1676,9 +1645,9 @@
           "pr": "Enviar combinação de teclas"
         },
         "description": {
-          "es": "Comando para enviar combinacion de teclas",
-          "en": "Command to send key combination",
-          "pr": "Comando para enviar combinação de teclas"
+          "es": "Comando para atajos de teclado al elemento activo. Atajos que no sean de la pagina web, sino que sean del navegador y del sistema no estan soportados. ",
+          "en": "Command to send key combination to the active element. Shortcuts that are not part of the web page but are browser or system shortcuts are not supported.",
+          "pr": "Comando para enviar combinação de teclas para o elemento ativo. Atalhos que não fazem parte da página web, mas são atalhos do navegador ou do sistema não são suportados."
         },
         "form": {
           "css": "modal-lg",

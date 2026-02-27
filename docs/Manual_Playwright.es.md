@@ -28,12 +28,11 @@ Abre una nueva instancia del navegador.
 |Servidor Proxy|Dirección del servidor proxy (ej., http//myproxy8080)|http://myproxy:8080|
 |Usuario Proxy|Nombre de usuario para la autenticación del proxy|username|
 |Contraseña Proxy|Contraseña para la autenticación del proxy|password|
-|Carpeta de descarga|Ruta de descarga predeterminada donde el comando de descarga guardará los archivos|C:/Users/user/Desktop|
-|Archivo de perfil|Ruta del archivo de perfil de usuario para abrir el navegador|C:/folder/profile.json|
+|Ejecutable del navegador|Ruta del ejecutable de Google Chrome. Solo necesario si es que se usa dicho navegador.|C:/Program Files/Google/Chrome/Application/chrome.exe|
+|Carpeta de perfil|Ruta de la carpeta de perfil de usuario usada por navegador. Si se deja vacio, se creara uno temporal que se borrara al iniciar nuevamente sin una carpeta de perfil o al usar el comando Cerrar navegador.|C:/folder/profile/|
 |Tiempo de espera (seg)|Tiempo máximo de espera (en segundos) para la carga de la URL inicial.|30|
 |Modo Headless|Ejecutar el navegador en modo headless (sin GUI)||
 |ID de Sesión|ID único para esta sesión de Playwright. Permite ejecutar múltiples navegadores o bots en paralelo sin interferencias entre sí.|1|
-|Asignar resultado a variable|Variable donde se almacenará el resultado de la conexión|Variable|
 
 ### Ir a URL
 
@@ -141,7 +140,7 @@ Selecciona una o varias opciones en un elemento desplegable.
 
 ### Enviar combinacion de teclas
 
-Comando para enviar combinacion de teclas
+Comando para atajos de teclado al elemento activo. Atajos que no sean de la pagina web, sino que sean del navegador y del sistema no estan soportados. 
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
 |Primera tecla especial|Primer tecla especial a combinar con una letra/numero y/o con una segunda tecla especial|SPACE|

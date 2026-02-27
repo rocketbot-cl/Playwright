@@ -49,7 +49,7 @@ Allows clicking a button to download an item.
 Select one or multiple options in a dropdown element.
 
 11. Send key combination
-Command to send key combination
+Command to send key combination to the active element. Shortcuts that are not part of the web page but are browser or system shortcuts are not supported.
 
 12. Check / Uncheck
 Check or Uncheck a check.

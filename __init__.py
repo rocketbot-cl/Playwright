@@ -29,10 +29,12 @@ __author__ = 'Rocketbot <contacto@rocketbot.com>'
 global cur_path
 base_path = tmp_global_obj["basepath"]
 cur_path = base_path + 'modules' + os.sep + 'playwright' + os.sep + 'libs' + os.sep
+
 if cur_path not in sys.path:
     sys.path.append(cur_path)
 
-global playwright_cli
+global _ensure_playwright_browsers_installed, glob, playwright_cli
+
 from PlaywrightObject import PlaywrightObject
 from playwright.__main__ import main as playwright_cli
 import os
@@ -68,12 +70,17 @@ def _to_bool(v):
         return False
     return str(v).strip().lower() in ("1", "true", "yes", "y", "si")
 
+
 import os
 import sys
 import time
 from time import sleep
 
+
 def _ensure_playwright_browsers_installed(base_path, browser_type="chromium"):
+    import time
+    from time import sleep
+
     target_path = os.path.join(
         base_path, "playwright", "driver", "package", ".local-browsers"
     ) + os.sep
@@ -193,60 +200,50 @@ if module == "open_browser":
     session_id = GetParams("session_id")
     browser_type = GetParams("browser_type") or "chromium"
     headless = _to_bool(GetParams("headless"))
+    executable_path = GetParams("executable_path")
+    profile_path = GetParams("profile_path") or ""
 
     proxy_server = GetParams("proxy_server") or ""
     proxy_user = GetParams("proxy_user") or ""
     proxy_pass = GetParams("proxy_pass") or ""
 
-    downloads_path = GetParams("downloads_path") or ""
-    viewport_w = int(GetParams("viewport_w") or 1366)
-    viewport_h = int(GetParams("viewport_h") or 768)
-    locale = GetParams("locale") or ""
-    storage_state_path = GetParams("storage_state_path") or ""
-
     url = GetParams("url") or ""
     timeout = int(GetParams("timeout_sec") or 30)
 
     timeout *= 1000
+
     try:
+        if browser_type == "chromium" and not executable_path:
+            raise Exception("Browser executable path is required")
+        
+        elif executable_path and not os.path.exists(executable_path):
+            raise Exception("The specified executable path does not exist")
+
         _ensure_playwright_browsers_installed(cur_path, browser_type)
-        _PW.start(session_id)
+        _PW.start(session_id, base_path)
+
 
         _PW.launch_browser(
-            session_id=session_id,
-            browser_type=browser_type,
-            headless=headless,
-            proxy_server=proxy_server,
-            proxy_user=proxy_user,
-            proxy_pass=proxy_pass,
-            downloads_path=downloads_path
+            session_id = session_id,
+            browser_type = browser_type,
+            headless = headless,
+            proxy_server = proxy_server,
+            proxy_user = proxy_user,
+            proxy_pass = proxy_pass,
+            executable_path = executable_path,
+            profile_path = profile_path
         )
-
-        _PW.new_context(
-            session_id=session_id,
-            viewport_w=viewport_w,
-            viewport_h=viewport_h,
-            locale=locale,
-            storage_state_path=storage_state_path
-        )
-
-        _PW.new_page(session_id)
 
         if url:
             _PW.goto(session_id=session_id, url=url, wait_until="load", timeout=timeout)
 
-        res = GetParams("result")
-        if res:
-            SetVar(res, True)
 
     except Exception as e:
         try:
             PrintException()
         except Exception:
             print(str(e).encode("utf-8", "replace").decode("utf-8", "replace"))
-        res = GetParams("result")
-        if res:
-            SetVar(res, False)
+
         raise e
 
 if module == "wait_for_selector":
@@ -255,15 +252,18 @@ if module == "wait_for_selector":
     selector_type = GetParams("selector_type") or "css"
     state = (GetParams("state") or "visible").strip().lower()
     timeout = int(GetParams("timeout_sec") or 30)
+    res = GetParams("result")
 
     timeout *= 1000
 
     loc = _PW.locator(session_id, selector, selector_type)
-    loc.wait_for(state=state, timeout=timeout)
-
-    res = GetParams("result")
-    if res:
-        SetVar(res, True)
+    try:
+        loc.wait_for(state=state, timeout=timeout)
+        if res:
+            SetVar(res, True)
+    except:
+        if res:
+            SetVar(res, False)
 
 if module == "click":
     session_id = GetParams("session_id")
@@ -314,11 +314,9 @@ if module == "screenshot":
     if path is None:
         raise Exception("Folder path cannot be left Empty")
     if file_name is None:
-        file_name = "screenshot.jpg"
+        file_name = "screenshot"
 
-    p = _PW.page(session_id)
-    full_path = os.path.join(path, file_name)
-    p.screenshot(path=full_path, full_page=full_page)
+    _PW.screenshot(session_id, path, file_name, full_page)
 
 
 if module == "expect_download_click":
@@ -374,7 +372,7 @@ if module == "sendKeyCombination":
     second_special = GetParams("second_special_key")
     session_id = GetParams("session_id")
     
-    page = _PW.page(session_id)
+    ctx = _PW.page(session_id)
     combination = []
 
     if first_special:
@@ -387,7 +385,7 @@ if module == "sendKeyCombination":
         combination.append(key)
     
     final_combination = "+".join(combination)
-    page.keyboard.press(final_combination)
+    ctx.keyboard.press(final_combination)
 
 if module == "set_checked":
     session_id = GetParams("session_id")
@@ -424,15 +422,14 @@ if module == "wait_for_load_state":
 
     timeout *= 1000
 
-    page = _PW.page(session_id)
+    ctx = _PW.content(session_id)
     if load_state is None:
         load_state = "load"
     try:
-        page.wait_for_load_state(state=load_state, timeout=timeout)
+        ctx.wait_for_load_state(state=load_state, timeout=timeout)
         SetVar(res, True)
-    except Exception as e:
+    except:
         SetVar(res, False)
-        raise e
     
 if module == "switch_tab":
     session_id = GetParams("session_id")
@@ -444,7 +441,7 @@ if module == "get_tab_titles":
     session_id = GetParams("session_id")
     res = GetParams("result")
 
-    titles = _PW.content_titles(session_id)
+    titles = _PW.page_titles(session_id)
     SetVar(res, titles)
 
 if module == "evaluate_js":
@@ -453,12 +450,12 @@ if module == "evaluate_js":
     res = GetParams("result")
     parameters = GetParams("function_parameters")
 
-    page = _PW.page(session_id)
+    ctx = _PW.content(session_id)
     if parameters:
         list_param = [item for item in parameters.strip("[]").split(", ")]
-        return_value = page.evaluate(js_code, list_param)
+        return_value = ctx.evaluate(js_code, list_param)
     else:
-        return_value = page.evaluate(js_code)
+        return_value = ctx.evaluate(js_code)
         
     SetVar(res, return_value)
 

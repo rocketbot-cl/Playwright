@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 import os
+import shutil
+import tempfile
+import stat
 from typing import Dict, Any, Optional
 
-from playwright.sync_api import sync_playwright, Playwright, Browser, BrowserContext, Page, FrameLocator
+from playwright.sync_api import (
+    sync_playwright,
+    Playwright,
+    Browser,
+    BrowserContext,
+    Page,
+    Frame,
+)
 
 
 class PlaywrightObject:
     """
-    Session manager: each session_id holds playwright + browser + context + page
-    to allow parallel executions safely.
+    Session manager:
+    - Single Playwright instance per process
+    - Multiple parallel browser sessions
+    - Proper iframe handling using real Frame objects
     """
 
     def __init__(self):
@@ -18,49 +30,46 @@ class PlaywrightObject:
 
     def _get(self, session_id: str) -> Dict[str, Any]:
         if session_id not in self.sessions:
-            raise Exception(f"Session '{session_id}' not found. Run start_playwright first.")
+            raise Exception(f"Session '{session_id}' not found.")
         return self.sessions[session_id]
 
-    def start(self, session_id: str) -> None:
-
+    def start(self, session_id: str, base_path: str) -> None:
         if session_id in self.sessions:
+            self.__clean_temp_profile__(session_id)
             return
 
         if self._pw is None:
             self._pw = sync_playwright().start()
 
         self._pw_refcount += 1
+
+
         self.sessions[session_id] = {
-            "playwright": self._pw,
-            "browser": None,
             "context": None,
             "page": None,
-            "iframe": None
+            "current_context": None,  # Page or Frame
+            "profile_path": None,
+            "downloads_path": None,
         }
 
     def stop(self, session_id: str) -> None:
         s = self._get(session_id)
-        # close page/context/browser in safe order
+
         try:
             if s.get("page"):
                 s["page"].close()
         except:
             pass
+
         try:
-            ctx = s.get("context")
-            if ctx:
-                profile_file = s.get("storage_state_path")
-                if profile_file:
-                    ctx.storage_state(path=profile_file)
-                    
-                ctx.close()
+            if s.get("context"):
+                s["context"].close()
+                s["context"] = None
         except:
             pass
-        try:
-            if s.get("browser"):
-                s["browser"].close()
-        except:
-            pass
+
+
+        self.__clean_temp_profile__(session_id)
 
         self.sessions.pop(session_id, None)
 
@@ -70,13 +79,19 @@ class PlaywrightObject:
                 self._pw.stop()
             finally:
                 self._pw = None
-    
-    def launch_browser(self, session_id: str, browser_type: str = "chromium", headless: bool = True,
-                      proxy_server: str = "", proxy_user: str = "", proxy_pass: str = "",
-                      downloads_path: str = "") -> None:
-        
+
+    def launch_browser(self,
+        session_id: str,
+        browser_type: str = "chromium",
+        headless: bool = True,
+        proxy_server: str = "",
+        proxy_user: str = "",
+        proxy_pass: str = "",
+        executable_path: str = "",
+        profile_path: str = "") -> None:
+
         s = self._get(session_id)
-        pw: Playwright = s["playwright"]
+        pw: Playwright = self._pw
 
         bt = browser_type.lower().strip()
         if bt not in ("chromium", "firefox", "webkit"):
@@ -90,88 +105,173 @@ class PlaywrightObject:
             if proxy_pass:
                 proxy["password"] = proxy_pass
 
-
-        ignore_default_args = ["--enable-automation"]
         browser_launcher = getattr(pw, bt)
 
+        ignore_default_args = [
+            "--enable-automation",
+        ]
+
+        if not profile_path.strip():
+            prefix = f"rocketbot_playwrightsession_{session_id}_"
+            profile_path = tempfile.mkdtemp(prefix=prefix)
+
         if bt == "chromium":
+            ignore_default_args.append("--disable-extensions")
+
             args = [
                 "--disable-blink-features=AutomationControlled",
-                "--start-maximized",
-                f"--download-default-directory={downloads_path}"
+                "--start-maximized"
             ]
-            s["browser"] = browser_launcher.launch(headless=headless, proxy=proxy, args=args, ignore_default_args=ignore_default_args)
 
-        elif bt == "firefox":
-            s["browser"] = browser_launcher.launch(headless=headless, proxy=proxy, ignore_default_args=ignore_default_args)
-            
-        # store downloads_path for context creation
-        if downloads_path:
-            s["downloads_path"] = downloads_path
+            browser = browser_launcher.launch_persistent_context(
+                user_data_dir= profile_path,
+                headless=headless,
+                proxy=proxy,
+                args=args,
+                ignore_default_args=ignore_default_args,
+                no_viewport = True,
+                accept_downloads = True,
+                executable_path = executable_path
+            )
 
-    def new_context(self, session_id: str,
-                    viewport_w: int = 1366, viewport_h: int = 768,
-                    user_agent: str = "", locale: str = "",
-                    storage_state_path: str = "") -> None:
-        s = self._get(session_id)
-        browser: Browser = s.get("browser")
-        if not browser:
-            raise Exception("Browser not launched. Run launch_browser first.")
+        else: #bt == webkit
+            browser = browser_launcher.launch_persistent_context(
+                user_data_dir= profile_path,
+                headless=headless,
+                proxy=proxy,
+                ignore_default_args=ignore_default_args,
+            )
 
-        kwargs = {
-            "accept_downloads": True,
-            "no_viewport": True,
-        }
-
-        if user_agent:
-            kwargs["user_agent"] = user_agent
-        if locale:
-            kwargs["locale"] = locale
-
-        # IMPORTANT: storage_state can be loaded to reuse login
-        if storage_state_path:
-            kwargs["storage_state"] = storage_state_path
-            
-        s["storage_state_path"] = storage_state_path
-
-        # downloads_path is supported in new_context in newer versions;
-        # but to be safe, we handle downloads by download.save_as(...)
-        # We'll still store it for our own default save path.
-        s["context"] = browser.new_context(**kwargs)
-
+        s["context"] = browser
+        self.new_page(session_id)
+        if len(browser.pages) > 1:
+            browser.pages[0].close()
 
     def new_page(self, session_id: str) -> None:
         s = self._get(session_id)
         ctx: BrowserContext = s.get("context")
         if not ctx:
-            raise Exception("Context not created. Run new_context first.")
-        s["page"] = ctx.new_page()
-        s["iframe"] = None
+            raise Exception("Context not created.")
+
+        page = ctx.new_page()
+        s["page"] = page
+        s["current_context"] = page  # default context is page
 
     def page(self, session_id: str) -> Page:
         s = self._get(session_id)
-        p: Page = s.get("page")
-        if not p:
-            raise Exception("Page not available. Run new_page first.")
-        return p
+        return s["page"]
 
     def content(self, session_id: str):
+        """
+        Returns current active context:
+        - Page if not inside iframe
+        - Frame if switched into iframe
+        """
         s = self._get(session_id)
-        f: FrameLocator = s.get("iframe")
-        if f:
-            return f
-        
-        p: Page = s.get("page")
-        if not p:
-            raise Exception("Page not available. Run new_page first.")
-        return p
-    
+        ctx = s.get("current_context")
+        if ctx:
+            return ctx
+        raise Exception("No active context.")
 
-    def goto(self, session_id: str, url: str, wait_until: str, timeout:int):
+    def goto(self, session_id: str, url: str, wait_until: str, timeout: int):
         self.change_to_body_content(session_id)
-        page = self.content(session_id)
-        page.goto(url, wait_until=wait_until, timeout=timeout)
+        ctx = self.content(session_id)
+        ctx.goto(url, wait_until=wait_until, timeout=timeout)
 
+    def switch_to_iframe(
+        self, session_id: str, selector: str, selector_type: str = "css"
+    ):
+        s = self._get(session_id)
+        page: Page = s["page"]
+
+        st = (selector_type or "css").lower().strip()
+
+        if st == "css":
+            frame_element = page.locator(selector).first
+        elif st == "xpath":
+            frame_element = page.locator(f"xpath={selector}").first
+        else:
+            frame_element = page.locator(selector).first
+
+        handle = frame_element.element_handle()
+        if handle is None:
+            raise Exception("Iframe element not found.")
+
+        frame = handle.content_frame()
+        if frame is None:
+            raise Exception("Could not resolve iframe content.")
+
+        s["current_context"] = frame
+
+    def change_to_body_content(self, session_id: str):
+        s = self._get(session_id)
+        s["current_context"] = s["page"]
+
+    def locator(
+        self, session_id: str, selector: str, selector_type: str = "css"
+    ):
+        ctx = self.content(session_id)
+
+        st = (selector_type or "css").lower().strip()
+
+        if st == "css":
+            return ctx.locator(selector)
+        if st == "xpath":
+            return ctx.locator(f"xpath={selector}")
+        if st == "text":
+            return ctx.locator(f"text={selector}")
+
+        return ctx.locator(selector)
+
+    def download(
+        self,
+        session_id: str,
+        selector: str,
+        save_dir: str,
+        file_name: str,
+        timeout: int,
+        selector_type: str = "css",
+    ):
+
+        s = self._get(session_id)
+
+        if not save_dir:
+            save_dir = s.get("downloads_path")
+            if not save_dir:
+                raise Exception("Save directory cannot be empty.")
+
+        page = s["page"]
+        loc = self.locator(session_id, selector, selector_type)
+
+        with page.expect_download(timeout=timeout) as dl_info:
+            loc.click()
+
+        dl = dl_info.value
+        suggested = dl.suggested_filename
+
+        if not file_name:
+            file_name = suggested
+        else:
+            ext = suggested.split(".")[-1]
+            file_name = f"{file_name}.{ext}"
+
+        os.makedirs(save_dir, exist_ok=True)
+        final_path = os.path.join(save_dir, file_name)
+        dl.save_as(final_path)
+
+        return final_path, file_name
+    
+    def screenshot(self, session_id, path, file_name, full_page):
+        content = self.content(session_id)
+
+        file_name += ".jpg"
+        full_path = os.path.join(path, file_name)
+
+        if isinstance(content, Page):
+            content.screenshot(path=full_path, full_page=full_page )
+        else:
+            handle = content.frame_element()
+            handle.screenshot(path=full_path)
 
     def page_titles(self, session_id: str) -> list[str]:
         s = self._get(session_id)
@@ -185,7 +285,6 @@ class PlaywrightObject:
         for page in pages:
             titles.append(page.title())
         return titles
-
 
     def change_page_by_title(self, session_id: str, page_title: str) -> None:
         s = self._get(session_id)
@@ -204,69 +303,23 @@ class PlaywrightObject:
         raise Exception("The page could not be found.")
 
 
-    # --- selector helpers ---
-    def locator(self, session_id: str, selector: str, selector_type: str = "css"):
-        c = self.content(session_id)
+    def __clean_temp_profile__(self, session_id):
+        temp_profile_dir = tempfile.gettempdir()
+        prefix = f"rocketbot_playwrightsession_{session_id}_"
 
-        st = (selector_type or "css").lower().strip()
-        if st == "css":
-            return c.locator(selector)
-        if st == "xpath":
-            return c.locator(f"xpath={selector}")
-        if st == "text":
-            return c.locator(f"text={selector}")
-        # simple fallback
-        return c.locator(selector)
-    
+        for item in os.listdir(temp_profile_dir):
+            if item.startswith(prefix):
+                profile_path = os.path.join(temp_profile_dir, item)
 
-    def switch_to_iframe(self, session_id: str, selector: str, selector_type: str = "css"):
-        s = self._get(session_id)
-        c = self.content(session_id)
+                try:
+                    shutil.rmtree(profile_path, onerror=self.__remove_readonly_files__)
+                except Exception as e:
+                    raise Exception(f"There is already an active browser using this session. Please close the browser or use another session")
 
-        st = (selector_type or "css").lower().strip()
-        if st == "css":
-            iframe = c.frame_locator(selector)
-        elif st == "xpath":
-            iframe = c.frame_locator(f"xpath={selector}")
-        elif st == "text":
-            iframe = c.frame_locator(f"text={selector}")
+    def __remove_readonly_files__(self, func, path, excinfo):
+        if not os.access(path, os.W_OK):
+            os.chmod(path, stat.S_IWRITE)
+            func(path)
         else:
-            iframe = c.frame_locator(selector)
-
-        s["iframe"] = iframe
-    
-
-    def change_to_body_content(self, session_id: str):
-        s = self._get(session_id)
-        s["iframe"] = None
-
-    def download(self, session_id: str, selector: str, save_dir: str, file_name: str, timeout: int, selector_type: str = "css"):
-        s = self._get(session_id)
-
-        if not save_dir:
-            try:
-                save_dir = s["downloads_path"]
-            except:
-                raise Exception("Save Directory cannot be left empty")
-    
-        p = self.page(session_id)
-        loc = self.locator(session_id, selector, selector_type)
-
-        with p.expect_download(timeout=timeout) as dl_info:
-            loc.click()
-
-        dl = dl_info.value
-        suggested = dl.suggested_filename
-
-        if not file_name:
-            file_name = suggested
-        else:
-            #We add to the file name the suggested Filename extension
-            suggested = suggested.split(".")
-            file_name += "." + suggested[1]
-
-        os.makedirs(save_dir, exist_ok=True)
-        final_path = os.path.join(save_dir, file_name)
-        dl.save_as(final_path)
-
-        return final_path, file_name
+            raise
+        

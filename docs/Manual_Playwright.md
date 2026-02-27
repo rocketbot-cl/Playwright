@@ -28,12 +28,11 @@ Open a new browser instance.
 |Proxy Server|Proxy server address (e.g., http//myproxy8080)|http://myproxy:8080|
 |Proxy User|Username for proxy authentication|username|
 |Proxy Password|Password for proxy authentication|password|
-|Download folder|Default download path where the Download Command will save files|C:/Users/user/Desktop|
-|Profile file|Profile file to open the opened browser|C:/folder/profile.json|
+|Browser executable|Path to the Google Chrome executable. Only needed if using that browser.|C:/Program Files/Google/Chrome/Application/chrome.exe|
+|Profile folder|Path to the user profile folder used by the browser. If left empty, a temporary one will be created that will be deleted upon restarting without a profile folder or using the Close Browser command.|C:/folder/profile/|
 |Timeout (sec)|Maximum wait time (in seconds) for the initial URL to load.|30|
 |Headless Mode|Run browser in headless mode (without GUI)||
 |Session ID|Unique ID for this Playwright session. Allows running multiple browsers or bots in parallel without interference.|1|
-|Assign result to variable|Variable where the result of the connection will be stored|Variable|
 
 ### Open URL
 
@@ -144,7 +143,7 @@ Select one or multiple options in a dropdown element.
 
 ### Send key combination
 
-Command to send key combination
+Command to send key combination to the active element. Shortcuts that are not part of the web page but are browser or system shortcuts are not supported.
 |Parameters|Description|example|
 | --- | --- | --- |
 |First special Key|First special key to combine with a letter/number and/or with a second special key|SPACE|
