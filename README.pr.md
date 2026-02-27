@@ -49,7 +49,7 @@ Permite clicar em um botão para baixar um item.
 Seleciona uma ou várias opções em um elemento suspenso.
 
 11. Enviar combinação de teclas
-Comando para enviar combinação de teclas
+Comando para enviar combinação de teclas para o elemento ativo. Atalhos que não fazem parte da página web, mas são atalhos do navegador ou do sistema não são suportados.
 
 12. Marcar / Desmarcar
 Marcar ou desmarcar a caixa.

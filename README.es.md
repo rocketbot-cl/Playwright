@@ -49,7 +49,7 @@ Permite hacer click en un botón para descargar un elemento.
 Selecciona una o varias opciones en un elemento desplegable.
 
 11. Enviar combinacion de teclas
-Comando para enviar combinacion de teclas
+Comando para atajos de teclado al elemento activo. Atajos que no sean de la pagina web, sino que sean del navegador y del sistema no estan soportados. 
 
 12. Marcar / Desmarcar
 Marcar o desmarcar la casilla.
