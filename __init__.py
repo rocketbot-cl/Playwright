@@ -394,6 +394,7 @@ if module == "set_checked":
     timeout = int(GetParams("timeout_sec") or 30)
     check = GetParams("check")
 
+    check = True if (check == "True" or check is None) else False
     timeout *= 1000
 
     loc = _PW.locator(session_id, selector, selector_type)
@@ -467,10 +468,7 @@ if module == "count":
 
     loc = _PW.locator(session_id, selector, selector_type)
     count = loc.count()
-    if count == 0:
-        SetVar(res, "There were no elements found")
-    else:
-        SetVar(res, count)
+    SetVar(res, "There were no elements found")
         
 if module == "change_to_Iframe":
     session_id = GetParams("session_id")

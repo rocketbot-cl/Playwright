@@ -2072,14 +2072,13 @@
                         "options": [
                             {
                                 "title": "Check",
-                                "value": true
+                                "value": "True"
                             },
                             {
                                 "title": "Uncheck",
-                                "value": false
+                                "value": "False"
                             }   
                         ],
-                        "default": true,
                         "id": "check",
                         "css": "col-md-4"
                     },

@@ -182,18 +182,19 @@ class PlaywrightObject:
         self, session_id: str, selector: str, selector_type: str = "css"
     ):
         s = self._get(session_id)
-        page: Page = s["page"]
+        content = self.content(session_id)
 
         st = (selector_type or "css").lower().strip()
 
         if st == "css":
-            frame_element = page.locator(selector).first
+            frame_element = content.locator(selector).first
         elif st == "xpath":
-            frame_element = page.locator(f"xpath={selector}").first
+            frame_element = content.locator(f"xpath={selector}").first
         else:
-            frame_element = page.locator(selector).first
+            frame_element = content.locator(selector).first
 
-        handle = frame_element.element_handle()
+        print(frame_element)
+        handle = frame_element.element_handle(timeout=5000)
         if handle is None:
             raise Exception("Iframe element not found.")
 
@@ -299,7 +300,8 @@ class PlaywrightObject:
                 s["page"] = page
                 s["iframe"] = None
                 page.bring_to_front()
-                break
+                return
+
         raise Exception("The page could not be found.")
 
 
