@@ -468,7 +468,7 @@ if module == "count":
 
     loc = _PW.locator(session_id, selector, selector_type)
     count = loc.count()
-    SetVar(res, "There were no elements found")
+    SetVar(res, count)
         
 if module == "change_to_Iframe":
     session_id = GetParams("session_id")
