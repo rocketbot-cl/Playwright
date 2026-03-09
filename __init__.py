@@ -28,7 +28,7 @@ __version__ = '1.0.0'
 __author__ = 'Rocketbot <contacto@rocketbot.com>'
 global cur_path
 base_path = tmp_global_obj["basepath"]
-cur_path = base_path + 'modules' + os.sep + 'playwright' + os.sep + 'libs' + os.sep
+cur_path = base_path + 'modules' + os.sep + 'Playwright' + os.sep + 'libs' + os.sep
 
 if cur_path not in sys.path:
     sys.path.append(cur_path)
