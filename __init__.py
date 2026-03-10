@@ -24,11 +24,22 @@ Para instalar librerias se debe ingresar por terminal a la carpeta "libs"
 
 """
 # -*- coding: utf-8 -*-
-__version__ = '1.0.0'
+__version__ = '1.1.1'
 __author__ = 'Rocketbot <contacto@rocketbot.com>'
+import os, sys, platform
+
 global cur_path
 base_path = tmp_global_obj["basepath"]
-cur_path = base_path + 'modules' + os.sep + 'playwright' + os.sep + 'libs' + os.sep
+system = platform.system().lower()
+if system == "windows":
+    cur_path =  base_path + 'modules' + os.sep + 'Playwright' + os.sep + 'libs' + os.sep + 'windows' + os.sep
+elif system == "darwin":
+    cur_path = base_path + 'modules' + os.sep + 'Playwright' + os.sep + 'libs' + os.sep + 'macos' + os.sep
+elif system == "linux":
+    cur_path = base_path + 'modules' + os.sep + 'Playwright' + os.sep + 'libs' + os.sep + 'linux' + os.sep
+
+if cur_path not in sys.path:
+    sys.path.append(cur_path)
 
 if cur_path not in sys.path:
     sys.path.append(cur_path)
@@ -195,6 +206,54 @@ if module == "goto":
             SetVar(res, False)
         raise e
 
+
+if module == "open_chrome":
+    session_id = GetParams("session_id")
+    headless = _to_bool(GetParams("headless"))
+    executable_path = GetParams("executable_path")
+    profile_path = GetParams("profile_path") or ""
+
+    proxy_server = GetParams("proxy_server") or ""
+    proxy_user = GetParams("proxy_user") or ""
+    proxy_pass = GetParams("proxy_pass") or ""
+
+    url = GetParams("url") or ""
+    timeout = int(GetParams("timeout_sec") or 30)
+
+    timeout *= 1000
+
+    try:
+        if not executable_path:
+            raise Exception("Browser executable path is required")
+        
+        elif executable_path and not os.path.exists(executable_path):
+            raise Exception("The specified executable path does not exist")
+
+        _PW.start(session_id, base_path)
+
+
+        _PW.launch_browser(
+            session_id = session_id,
+            browser_type = "chromium",
+            headless = headless,
+            proxy_server = proxy_server,
+            proxy_user = proxy_user,
+            proxy_pass = proxy_pass,
+            executable_path = executable_path,
+            profile_path = profile_path
+        )
+
+        if url:
+            _PW.goto(session_id=session_id, url=url, wait_until="load", timeout=timeout)
+
+
+    except Exception as e:
+        try:
+            PrintException()
+        except Exception:
+            print(str(e).encode("utf-8", "replace").decode("utf-8", "replace"))
+
+        raise e
 
 if module == "open_browser":
     session_id = GetParams("session_id")
@@ -481,3 +540,14 @@ if module == "change_to_body_content":
     session_id = GetParams("session_id")
 
     _PW.change_to_body_content(session_id)
+
+if module == "click_new_tab":
+    session_id = GetParams("session_id")
+    selector = GetParams("selector")
+    selector_type = GetParams("selector_type") or "css"
+    state = (GetParams("state") or "visible").strip().lower()
+    timeout = int(GetParams("timeout_sec") or 30)
+
+    timeout *= 1000
+
+    _PW.click_and_switch_to_tab(session_id = session_id, state=state, timeout= timeout, selector = selector, selector_type = selector_type)

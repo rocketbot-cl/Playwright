@@ -190,10 +190,11 @@ class PlaywrightObject:
             frame_element = content.locator(selector).first
         elif st == "xpath":
             frame_element = content.locator(f"xpath={selector}").first
-        else:
-            frame_element = content.locator(selector).first
+        elif st =="text":
+            frame_element = content.locator(f"text={selector}").first
+        else: #st == 'id'
+            frame_element = content.locator(f"id={selector}").first
 
-        print(frame_element)
         handle = frame_element.element_handle(timeout=5000)
         if handle is None:
             raise Exception("Iframe element not found.")
@@ -217,12 +218,12 @@ class PlaywrightObject:
 
         if st == "css":
             return ctx.locator(selector)
-        if st == "xpath":
+        elif st == "xpath":
             return ctx.locator(f"xpath={selector}")
-        if st == "text":
+        elif st == "text":
             return ctx.locator(f"text={selector}")
-
-        return ctx.locator(selector)
+        else: #st == 'id'
+            return ctx.locator(f"id={selector}")
 
     def download(
         self,
@@ -303,6 +304,20 @@ class PlaywrightObject:
                 return
 
         raise Exception("The page could not be found.")
+
+    def click_and_switch_to_tab(self, session_id: str, state: str, timeout: int, selector: str, selector_type: str = "css"):
+        s = self._get(session_id)
+
+        page = self.page(session_id)
+        loc = self.locator(session_id, selector, selector_type)
+
+        with page.expect_popup(timeout=timeout) as page_info:
+            loc.click()
+
+        new_page = page_info.value 
+        new_page.wait_for_load_state(state=state)
+        s["page"] = new_page
+        s["current_context"] = new_page
 
 
     def __clean_temp_profile__(self, session_id):
