@@ -272,13 +272,13 @@
                         "type": "checkbox",
                         "title": {
                             "en": "Force download?",
-                            "es": "¿Forzar descarga?",
-                            "pr": "Forçar download?"
+                            "es": "Forzar descarga",
+                            "pr": "Forçar download"
                         },
                         "description": {
-                            "en": "If true, it will delete existing libraries and download them again.",
-                            "es": "Si es verdadero, eliminará las librerías existentes y las descargará de nuevo.",
-                            "pr": "Se verdadeiro, excluirá as bibliotecas existentes e as baixará novamente."
+                            "en": "If checked, it will delete existing libraries and download them again.",
+                            "es": "Si es marcada, eliminará las librerías existentes y las descargará de nuevo.",
+                            "pr": "Se marcada, excluirá as bibliotecas existentes e as baixará novamente."
                         },
                         "id": "force_download",
                         "css": "col-md-6",

@@ -8,7 +8,7 @@ Módulo com funcionalidades avançadas para o navegador que utiliza Playwright e
 
 *Read this in other languages: [English](Manual_Playwright.md), [Português](Manual_Playwright.pr.md), [Español](Manual_Playwright.es.md)*
 
-![banner](imgs/Playwright.jpg)
+![banner](imgs/Banner_Playwright.jpg)
 ## Como instalar este módulo
 
 Para instalar o módulo no Rocketbot Studio, pode ser feito de duas formas:
@@ -16,23 +16,53 @@ Para instalar o módulo no Rocketbot Studio, pode ser feito de duas formas:
 2. Automático: Ao entrar no Rocketbot Studio na margem direita você encontrará a seção **Addons**, selecione **Install Mods**, procure o módulo desejado e aperte instalar.
 
 
+
+## Como usar este módulo
+Este módulo é uma alternativa a outros módulos web, como o WebPro, onde, em vez de usar a biblioteca Selenium, usa a biblioteca Playwright.
+
+1. As dependências do módulo não estão incluídas no módulo, e serão baixadas automaticamente na pasta libs após usar qualquer comando pela primeira vez.
+
+2. Se as dependências forem atualizadas em uma versão futura do módulo, o usuário precisará executar o comando Verificar Bibliotecas com a opção de forçar download habilitada para baixar as dependências atualizadas.
+
+3. A biblioteca Playwright pode não funcionar se o usuário abrir uma nova guia manualmente ou usar o comando Click on object para fazer click em um botão ou link que abre uma nova guia. Recomendamos usar o comando Clicar em link para nova aba para fazer click em tais botões ou links.
+
+## Sobre o comando Open Chrome:
+1. O comando "Open Chrome" abrirá uma nova instância do navegador Chrome. Uma pasta de perfil temporária será criada para cada sessão que o 
+usuário abrir sem especificar uma pasta de perfil, e será excluída quando a sessão for fechada. Isso significa que quaisquer dados, como cookies ou histórico de navegação, não serão salvos após o término da sessão.
+2. O comando só pode abrir uma instância do navegador Chrome por cada pasta de perfil, então, se você quiser abrir várias instâncias do navegador Chrome, precisará abrir cada instância com uma pasta de perfil diferente. O navegador pode precisar de alguns segundos após o fechamento para poder usar uma pasta de perfil que estava em uso anteriormente.
+
 ## Descrição do comando
 
-### Abrir Navegador
+### Abrir Chrome
 
-Abre uma nova instância do navegador.
+Abre uma nova instância do Chrome.
 |Parâmetros|Descrição|exemplo|
 | --- | --- | --- |
-|Navegador |Navegador para abrir|Google Chrome|
 |URL|URL que será aberta automaticamente uma vez que o navegador e a página forem inicializados.|https://rocketbot.com/pr/|
+|Executável do navegador|Caminho para o executável do Google Chrome. Somente necessário se estiver usando esse navegador.|C:/Program Files/Google/Chrome/Application/chrome.exe|
+|Pasta de perfil|Caminho para a pasta de perfil do usuário usada pelo navegador. Se deixado vazio, um temporário será criado e excluído ao reiniciar sem uma pasta de perfil ou ao usar o comando Fechar Navegador.|C:/folder/profile/|
 |Servidor Proxy|Endereço do servidor proxy (ex., http//meuproxy8080)|http://meuproxy:8080|
 |Usuário Proxy|Nome de usuário para autenticação do proxy|usuário|
 |Senha Proxy|Senha para autenticação do proxy|password|
-|Executável do navegador|Caminho para o executável do Google Chrome. Somente necessário se estiver usando esse navegador.|C:/Program Files/Google/Chrome/Application/chrome.exe|
-|Pasta de perfil|Caminho para a pasta de perfil do usuário usada pelo navegador. Se deixado vazio, um temporário será criado e excluído ao reiniciar sem uma pasta de perfil ou ao usar o comando Fechar Navegador.|C:/folder/profile/|
 |Tempo de espera (seg)|Tempo máximo de espera (em segundos) para o carregamento da URL inicial.|30|
 |Modo Headless|Executar o navegador em modo headless (sem GUI)||
 |ID de Sessão|ID único para esta sessão do Playwright. Permite executar vários navegadores ou bots em paralelo sem interferência entre eles.|1|
+
+### Verificar Bibliotecas
+
+Verifica se as bibliotecas necessárias para o SO atual existem e permite forçar seu download.
+|Parâmetros|Descrição|exemplo|
+| --- | --- | --- |
+|Forçar download|Se marcada, excluirá as bibliotecas existentes e as baixará novamente.||
+|Atribuir resultado a variável|Variável onde o resultado do comando será armazenado|Variável|
+
+### Fechar navegador
+
+Fechar o navegador e todas as abas, e salva o estado do perfil.
+|Parâmetros|Descrição|exemplo|
+| --- | --- | --- |
+|ID de Sessão|ID único para esta sessão do Playwright|1|
+|Atribuir resultado a variável|Variável onde o resultado da conexão será armazenado|Variável|
 
 ### Ir para URL
 
@@ -45,14 +75,6 @@ DOMContentLoaded Aguarda a estrutura HTML aparecer, sem esperar por imagens.
 Network Idle Aguarda até que a atividade de rede pare completamente por 500ms.
 Commit considere a navegação como concluída quando a resposta da rede for recebida e o documento começar a carregar.||
 |Abrir em nova aba|Se marcado, abre a URL em uma nova aba em vez da atual.||
-|ID de Sessão|ID único para esta sessão do Playwright|1|
-|Atribuir resultado a variável|Variável onde o resultado da conexão será armazenado|Variável|
-
-### Fechar navegador
-
-Fechar o navegador e todas as abas, e salva o estado do perfil.
-|Parâmetros|Descrição|exemplo|
-| --- | --- | --- |
 |ID de Sessão|ID único para esta sessão do Playwright|1|
 |Atribuir resultado a variável|Variável onde o resultado da conexão será armazenado|Variável|
 
@@ -235,4 +257,17 @@ Mudar para um IFRAME e definir seu conteúdo como padrão.
 Mudar para o conteúdo do body da página como conteúdo padrão.
 |Parâmetros|Descrição|exemplo|
 | --- | --- | --- |
+|ID de Sessão|ID único para esta sessão do Playwright|1|
+
+### Clicar em link para nova aba
+
+Clica em um link que abrirá uma nova aba.
+|Parâmetros|Descrição|exemplo|
+| --- | --- | --- |
+|Dado a buscar|Colocamos o seletor do elemento a selecionar.|Data|
+|Tipo de Seletor|||
+|Tempo de espera (seg)|Tempo máximo de espera (em segundos) até que seja possível clicar no elemento.|30|
+|Esperar até|Loaded Aguarda o carregamento de toda a página, incluindo imagens e estilos.
+DOMContentLoaded Aguarda a estrutura HTML aparecer, sem esperar por imagens.
+Network Idle Aguarda até que a atividade de rede pare completamente por 500ms.||
 |ID de Sessão|ID único para esta sessão do Playwright|1|

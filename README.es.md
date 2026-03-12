@@ -18,65 +18,71 @@ Para instalar el módulo en Rocketbot Studio, se puede hacer de dos formas:
 ## Overview
 
 
-1. Abrir Navegador
-Abre una nueva instancia del navegador.
+1. Abrir Chrome
+Abre una nueva instancia de chrome.
 
-2. Ir a URL
-Navegar hacia una URL y esperar hasta que ocurra el evento seleccionado.
+2. Validar Librerías
+Verifica si existen las librerías necesarias para el SO actual y permite forzar su descarga.
 
 3. Cerrar navegador
 Cerrar el navegador y todas las pestañas, y guarda el estado del perfil.
 
-4. Esperar a Objeto
+4. Ir a URL
+Navegar hacia una URL y esperar hasta que ocurra el evento seleccionado.
+
+5. Esperar a Objeto
 Esperar a que un elemento esté en cierto estado.
 
-5. Click en objeto
+6. Click en objeto
 Hacer click en un elemento.
 
-6. Limpiar input y enviar Texto
+7. Limpiar input y enviar Texto
 Elimina el contenido de un objeto input y envía el texto.
 
-7. Extraer Texto Playwright
+8. Extraer Texto Playwright
 Obtener el texto interno de un elemento.
 
-8. Tomar Captura
+9. Tomar Captura
 Tomar una captura de pantalla de la página.
 
-9. Descargar
+10. Descargar
 Permite hacer click en un botón para descargar un elemento.
 
-10. Seleccionar Opción
+11. Seleccionar Opción
 Selecciona una o varias opciones en un elemento desplegable.
 
-11. Enviar combinacion de teclas
+12. Enviar combinacion de teclas
 Comando para atajos de teclado al elemento activo. Atajos que no sean de la pagina web, sino que sean del navegador y del sistema no estan soportados. 
 
-12. Marcar / Desmarcar
+13. Marcar / Desmarcar
 Marcar o desmarcar la casilla.
 
-13. Obtener Atributo
+14. Obtener Atributo
 Obtener el valor de un atributo.
 
-14. Esperar estado de carga
+15. Esperar estado de carga
 Esperar hasta que la página alcance un estado de carga requerido.
 
-15. Obtener títulos de pestañas
+16. Obtener títulos de pestañas
 Devuelve una lista con los títulos de todas las pestañas abiertas en el navegador.
 
-16. Cambiar pestaña por título
+17. Cambiar pestaña por título
 Cambiar a una pestaña por su título en el contexto actual.
 
-17. Evaluar JS.
+18. Evaluar JS.
 Evalua JS en el contexto de la página. Retorna el resultado de la ejecución.
 
-18. Contar elementos
+19. Contar elementos
 Contar cuántas veces aparece un elemento en la página.
 
-19. Cambiar a IFRAME
+20. Cambiar a IFRAME
 Cambia a un IFRAME y establece su contenido como predeterminado.
 
-20. Cambiar a contenido del body
+21. Cambiar a contenido del body
 Deja el contenido del body de la página como contenido por defecto.
+
+22. Click link a nueva pestaña
+Hacer click en un elemento que abrirá una nueva pestaña.
 
 
 
@@ -86,8 +92,6 @@ Deja el contenido del body de la página como contenido por defecto.
 
 - windows
 - mac
-- linux
-- docker
 
 ### Dependencies
 - [**playwright**](https://pypi.org/project/playwright/)
