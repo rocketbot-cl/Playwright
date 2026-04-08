@@ -24,16 +24,84 @@ Para instalar librerias se debe ingresar por terminal a la carpeta "libs"
 
 """
 # -*- coding: utf-8 -*-
-__version__ = '1.0.0'
+__version__ = '1.2.1'
 __author__ = 'Rocketbot <contacto@rocketbot.com>'
-global cur_path
+import os
+import sys
+import platform
+import shutil
+import zipfile
+
+global _ensure_playwright_browsers_installed, glob, playwright_cli, _detect_platform, PLATFORM_URLS, module_path
+
 base_path = tmp_global_obj["basepath"]
-cur_path = base_path + 'modules' + os.sep + 'Playwright' + os.sep + 'libs' + os.sep
+module_path = os.path.join(base_path, "modules", "Playwright")
+
+PLATFORM_URLS = {
+    "windows": "https://raw.githubusercontent.com/rocketbot-cl/PlaywrightLibs/master/windows.zip",
+    "macos": "https://raw.githubusercontent.com/rocketbot-cl/PlaywrightLibs/master/macos.zip",
+}
+
+def _detect_platform():
+    system_name = platform.system().lower()
+
+    if system_name == "windows":
+        return "windows", PLATFORM_URLS["windows"]
+    elif system_name == "darwin":
+        return "macos", PLATFORM_URLS["macos"]
+    else:
+        raise Exception(f"Unsupported OS for Playwright module: {system_name}")
+
+
+def _download_platform_libs(force: bool):
+    import tempfile
+    import urllib.request
+
+    platform_name, zip_url = _detect_platform()
+
+    libs_root = os.path.join(module_path, "libs")
+    os.makedirs(libs_root, exist_ok=True)
+
+    libs_path = os.path.join(libs_root, platform_name)
+
+    # Solo descarga si no existe la carpeta
+    if os.path.exists(libs_path) and not force:
+        return libs_path
+    elif os.path.exists(libs_path) and force:
+        shutil.rmtree(libs_path)
+
+    tmp_dir = tempfile.mkdtemp(prefix="rb_pwlibs_")
+    zip_path = os.path.join(tmp_dir, "libs.zip")
+    extract_path = os.path.join(tmp_dir, "extract")
+
+    urllib.request.urlretrieve(zip_url, zip_path)
+
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        zf.extractall(extract_path)
+
+    extracted_items = os.listdir(extract_path)
+
+    # Si el zip trae una carpeta raíz, usarla
+    if len(extracted_items) == 1:
+        possible_root = os.path.join(extract_path, extracted_items[0])
+        if os.path.isdir(possible_root):
+            extract_path = possible_root
+
+    shutil.move(extract_path, libs_path)
+
+    return libs_path
+
+
+playwright_object_path = os.path.join(module_path, "libs")
+
+if playwright_object_path not in sys.path:
+    sys.path.append(playwright_object_path)
+
+cur_path = _download_platform_libs(force=False)
 
 if cur_path not in sys.path:
     sys.path.append(cur_path)
 
-global _ensure_playwright_browsers_installed, glob, playwright_cli
 
 from PlaywrightObject import PlaywrightObject
 from playwright.__main__ import main as playwright_cli
@@ -195,10 +263,41 @@ if module == "goto":
             SetVar(res, False)
         raise e
 
+if module == "validate_libs":
+
+    force_download = _to_bool(GetParams("force_download"))
+    res = GetParams("result")
+
+    downloaded = False
+    validation = {}
+
+    try:
+        
+        # Validación actual
+        validation["platform_name"], _ = _detect_platform()
+
+        # Si se quiere forzar descarga
+        validation["libs_path"] = _download_platform_libs(force=force_download)
+        validation["downloaded"] = force_download
+
+        validation["valid"] =  os.path.exists(validation["libs_path"])
+
+        if res:
+            SetVar(res, validation)
+
+    except Exception as e:
+
+        if res:
+            SetVar(res, {
+                "valid": False,
+                "error": str(e),
+                "force_download": force_download
+            })
+
+        raise e
 
 if module == "open_browser":
     session_id = GetParams("session_id")
-    browser_type = GetParams("browser_type") or "chromium"
     headless = _to_bool(GetParams("headless"))
     executable_path = GetParams("executable_path")
     profile_path = GetParams("profile_path") or ""
@@ -209,29 +308,28 @@ if module == "open_browser":
 
     url = GetParams("url") or ""
     timeout = int(GetParams("timeout_sec") or 30)
-
+    debugging_port = GetParams("debugging_port")
     timeout *= 1000
 
     try:
-        if browser_type == "chromium" and not executable_path:
+        if not executable_path:
             raise Exception("Browser executable path is required")
         
         elif executable_path and not os.path.exists(executable_path):
             raise Exception("The specified executable path does not exist")
 
-        _ensure_playwright_browsers_installed(cur_path, browser_type)
         _PW.start(session_id, base_path)
 
 
-        _PW.launch_browser(
+        _PW.launch_chrome(
             session_id = session_id,
-            browser_type = browser_type,
             headless = headless,
             proxy_server = proxy_server,
             proxy_user = proxy_user,
             proxy_pass = proxy_pass,
             executable_path = executable_path,
-            profile_path = profile_path
+            profile_path = profile_path,
+            debugging_port=debugging_port
         )
 
         if url:
@@ -245,6 +343,56 @@ if module == "open_browser":
             print(str(e).encode("utf-8", "replace").decode("utf-8", "replace"))
 
         raise e
+
+#if module == "open_browser":
+#    session_id = GetParams("session_id")
+#    browser_type = GetParams("browser_type") or "chromium"
+#    headless = _to_bool(GetParams("headless"))
+#    executable_path = GetParams("executable_path")
+#    profile_path = GetParams("profile_path") or ""
+#
+#    proxy_server = GetParams("proxy_server") or ""
+#    proxy_user = GetParams("proxy_user") or ""
+#    proxy_pass = GetParams("proxy_pass") or ""
+#
+#    url = GetParams("url") or ""
+#    timeout = int(GetParams("timeout_sec") or 30)
+#
+#    timeout *= 1000
+#
+#    try:
+#        if browser_type == "chromium" and not executable_path:
+#            raise Exception("Browser executable path is required")
+#        
+#        elif executable_path and not os.path.exists(executable_path):
+#            raise Exception("The specified executable path does not exist")
+#
+#        _ensure_playwright_browsers_installed(cur_path, browser_type)
+#        _PW.start(session_id, base_path)
+#
+#
+#        _PW.launch_browser(
+#            session_id = session_id,
+#            browser_type = browser_type,
+#            headless = headless,
+#            proxy_server = proxy_server,
+#            proxy_user = proxy_user,
+#            proxy_pass = proxy_pass,
+#            executable_path = executable_path,
+#            profile_path = profile_path
+#        )
+#
+#        if url:
+#            _PW.goto(session_id=session_id, url=url, wait_until="load", timeout=timeout)
+#
+#
+#    except Exception as e:
+#        try:
+#            PrintException()
+#        except Exception:
+#            print(str(e).encode("utf-8", "replace").decode("utf-8", "replace"))
+#
+#        raise e
 
 if module == "wait_for_selector":
     session_id = GetParams("session_id")
@@ -481,3 +629,25 @@ if module == "change_to_body_content":
     session_id = GetParams("session_id")
 
     _PW.change_to_body_content(session_id)
+
+if module == "click_new_tab":
+    session_id = GetParams("session_id")
+    selector = GetParams("selector")
+    selector_type = GetParams("selector_type") or "css"
+    state = (GetParams("state") or "visible").strip().lower()
+    timeout = int(GetParams("timeout_sec") or 30)
+
+    timeout *= 1000
+
+    _PW.click_and_switch_to_tab(session_id = session_id, state=state, timeout= timeout, selector = selector, selector_type = selector_type)
+
+if module == "upload_file":
+    session_id = GetParams("session_id")
+    selector = GetParams("selector")
+    selector_type = GetParams("selector_type") or "css"
+    path = (GetParams("path"))
+    timeout = int(GetParams("timeout_sec") or 30)
+
+    timeout *= 1000
+
+    _PW.upload_file(session_id = session_id, timeout=timeout, path= path, selector = selector, selector_type = selector_type)

@@ -80,22 +80,18 @@ class PlaywrightObject:
             finally:
                 self._pw = None
 
-    def launch_browser(self,
+    def launch_chrome(self,
         session_id: str,
-        browser_type: str = "chromium",
         headless: bool = True,
         proxy_server: str = "",
         proxy_user: str = "",
         proxy_pass: str = "",
         executable_path: str = "",
-        profile_path: str = "") -> None:
+        profile_path: str = "",
+        debugging_port: str = "") -> None:
 
         s = self._get(session_id)
         pw: Playwright = self._pw
-
-        bt = browser_type.lower().strip()
-        if bt not in ("chromium", "firefox", "webkit"):
-            raise Exception("browser_type must be chromium|firefox|webkit")
 
         proxy = None
         if proxy_server:
@@ -105,7 +101,7 @@ class PlaywrightObject:
             if proxy_pass:
                 proxy["password"] = proxy_pass
 
-        browser_launcher = getattr(pw, bt)
+        browser_launcher = getattr(pw, "chromium")
 
         ignore_default_args = [
             "--enable-automation",
@@ -115,32 +111,27 @@ class PlaywrightObject:
             prefix = f"rocketbot_playwrightsession_{session_id}_"
             profile_path = tempfile.mkdtemp(prefix=prefix)
 
-        if bt == "chromium":
-            ignore_default_args.append("--disable-extensions")
+        ignore_default_args.append("--disable-extensions")
 
-            args = [
-                "--disable-blink-features=AutomationControlled",
-                "--start-maximized"
-            ]
+        args = [
+            "--disable-blink-features=AutomationControlled",
+            "--start-maximized"
+        ]
+        
+        if debugging_port:
+            args.append(f"--remote-debugging-port={debugging_port}")
 
-            browser = browser_launcher.launch_persistent_context(
-                user_data_dir= profile_path,
-                headless=headless,
-                proxy=proxy,
-                args=args,
-                ignore_default_args=ignore_default_args,
-                no_viewport = True,
-                accept_downloads = True,
-                executable_path = executable_path
-            )
+        browser = browser_launcher.launch_persistent_context(
+            user_data_dir= profile_path,
+            headless=headless,
+            proxy=proxy,
+            args=args,
+            ignore_default_args=ignore_default_args,
+            no_viewport = True,
+            accept_downloads = True,
+            executable_path = executable_path
+        )
 
-        else: #bt == webkit
-            browser = browser_launcher.launch_persistent_context(
-                user_data_dir= profile_path,
-                headless=headless,
-                proxy=proxy,
-                ignore_default_args=ignore_default_args,
-            )
 
         s["context"] = browser
         self.new_page(session_id)
@@ -190,10 +181,11 @@ class PlaywrightObject:
             frame_element = content.locator(selector).first
         elif st == "xpath":
             frame_element = content.locator(f"xpath={selector}").first
-        else:
-            frame_element = content.locator(selector).first
+        elif st =="text":
+            frame_element = content.locator(f"text={selector}").first
+        else: #st == 'id'
+            frame_element = content.locator(f"id={selector}").first
 
-        print(frame_element)
         handle = frame_element.element_handle(timeout=5000)
         if handle is None:
             raise Exception("Iframe element not found.")
@@ -217,12 +209,12 @@ class PlaywrightObject:
 
         if st == "css":
             return ctx.locator(selector)
-        if st == "xpath":
+        elif st == "xpath":
             return ctx.locator(f"xpath={selector}")
-        if st == "text":
+        elif st == "text":
             return ctx.locator(f"text={selector}")
-
-        return ctx.locator(selector)
+        else: #st == 'id'
+            return ctx.locator(f"id={selector}")
 
     def download(
         self,
@@ -303,6 +295,34 @@ class PlaywrightObject:
                 return
 
         raise Exception("The page could not be found.")
+
+    def click_and_switch_to_tab(self, session_id: str, state: str, timeout: int, selector: str, selector_type: str = "css"):
+        s = self._get(session_id)
+
+        page = self.page(session_id)
+        loc = self.locator(session_id, selector, selector_type)
+
+        with page.expect_popup(timeout=timeout) as page_info:
+            loc.click()
+
+        new_page = page_info.value 
+        new_page.wait_for_load_state(state=state)
+        s["page"] = new_page
+        s["current_context"] = new_page
+
+    def upload_file(self, session_id: str, timeout: int, selector: str, path: str, selector_type: str = "css"):
+        s = self._get(session_id)
+
+        page = self.page(session_id)
+        loc = self.locator(session_id, selector, selector_type)
+
+        with page.expect_file_chooser(timeout=timeout) as fc_info:
+            loc.click()
+
+        file_chooser = fc_info.value
+        file_chooser.set_files(path, timeout=timeout)
+
+
 
 
     def __clean_temp_profile__(self, session_id):

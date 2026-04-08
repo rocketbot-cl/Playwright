@@ -8,31 +8,77 @@ Module with advanced functionalities for the browser that uses Playwright instea
 
 *Read this in other languages: [English](Manual_Playwright.md), [Português](Manual_Playwright.pr.md), [Español](Manual_Playwright.es.md)*
 
-![banner](imgs/Playwright.jpg)
+![banner](imgs/Banner_Playwright.png o jpg)
 ## How to install this module
 
 To install the module in Rocketbot Studio, it can be done in two ways:
 1. Manual: __Download__ the .zip file and unzip it in the modules folder. The folder name must be the same as the module and inside it must have the following files and folders: \__init__.py, package.json, docs, example and libs. If you have the application open, refresh your browser to be able to use the new module.
 2. Automatic: When entering Rocketbot Studio on the right margin you will find the **Addons** section, select **Install Mods**, search for the desired module and press install.
 
+## How to use this module
+This module is an alternative to the other web modules like WebPro where instead of using the Selenium library, it uses the Playwright library.
+
+1. The modules depedencies are not included in the module, and they will be automatically downloaded in the libs folder after using any command for the first time.
+
+2. If the dependencies are updated in a future version of the module, the user will need to run the command "Check Libraries" with the force download option enabled to download the updated dependencies.
+
+3. The Playwright library may not work if the user opens a new tab manually or uses the "Click on object" command to click a button or link that opens a new tab. We recommend using the "Click link to new tab" command to click on such buttons or links. If any webpage opens a new tab without even clicking, it is recommended to use the "Wait For Object" command to update Playwright's state.
+
+4. It is recommended to always close the browser using the "Close 
+Browser" command to avoid possible issues when reusing a profile folder or a session.
+
+5. To click on buttons or links that will download a file, it is necessary to use the "Download" command. Without this command, it will be impossible to download files.
+
+6. To interact with an element inside a ShadowRoot, it is necessary to interact with it using the `CSS` selector type. To obtain such selector, you need to right click on the element in the webpage's html, select the Copy option and then Copy selector.
+
+## About the Open Chrome command:
+1. The command "Open Chrome" will open a new instance of the Chrome browser. A temporary profile folder will be created for each session the users opens without specifying a profile folder, and it will be deleted when the session is closed. This means that any data, such as cookies or browsing history, will not be saved after the session ends.
+
+2. The command can only open an instance of the Chrome browser per each profile folder, so if you want to 
+open multiple instances of the Chrome browser, you will to open each instance with a different profile folder. The browser may need a few seconds after closing to be able to use a profile folder that was previously in use.
+
+## About using commands from other Web modules in the browser:
+1. It is possible to use commands from other Web modules like WebPro or the native Web module, using the "Take Playwright" command from WebPro. This command allows such web modules to connect to the port set in Open Chrome's Debugging Port.
+
+2. Since the browser was opened by Playwright, it will still be necessary to use commands like "Download" or "Click link to new tab" to download files or click on buttons or links that open a new tab.
+
+3. The way Playwright interacts with iframes is different from other web modules. This means that if you need to enter an iframe and within it use commands from both Playwright and another module, you will need to enter the iframe using the respective command from both
+ modules.
+
 
 ## Description of the commands
 
-### Open Browser
+### Open Chrome
 
-Open a new browser instance.
+Open a new chrome instance.
 |Parameters|Description|example|
 | --- | --- | --- |
-|Browser |Browser to open|Google Chrome|
 |URL|URL that will be automatically opened once the browser and page are initialized.|https://rocketbot.com/en/|
+|Browser executable|Path to the Google Chrome executable. Only needed if using that browser.|C:/Program Files/Google/Chrome/Application/chrome.exe|
+|Profile folder|Path to the user profile folder used by the browser. If left empty, a temporary one will be created that will be deleted upon restarting without a profile folder or using the Close Browser command.|C:/folder/profile/|
 |Proxy Server|Proxy server address (e.g., http//myproxy8080)|http://myproxy:8080|
 |Proxy User|Username for proxy authentication|username|
 |Proxy Password|Password for proxy authentication|password|
-|Browser executable|Path to the Google Chrome executable. Only needed if using that browser.|C:/Program Files/Google/Chrome/Application/chrome.exe|
-|Profile folder|Path to the user profile folder used by the browser. If left empty, a temporary one will be created that will be deleted upon restarting without a profile folder or using the Close Browser command.|C:/folder/profile/|
-|Timeout (sec)|Maximum wait time (in seconds) for the initial URL to load.|30|
 |Headless Mode|Run browser in headless mode (without GUI)||
+|Debugging Port|it allows modules that use Selenium like Web Pro to take control of the browser. This is done using the Take Playwright command from the Web Pro module.|9222|
+|Timeout (sec)|Maximum wait time (in seconds) for the initial URL to load.|30|
 |Session ID|Unique ID for this Playwright session. Allows running multiple browsers or bots in parallel without interference.|1|
+
+### Check Libraries
+
+Checks if the necessary libraries exist for the current OS and allows forcing their download.
+|Parameters|Description|example|
+| --- | --- | --- |
+|Force download?|If checked, it will delete existing libraries and download them again.||
+|Assign result to variable|Variable where the result of the command will be stored|Variable|
+
+### Close browser
+
+Close browser and all tabs, and saves profile state. 
+|Parameters|Description|example|
+| --- | --- | --- |
+|Session ID|Unique ID for this Playwright session|1|
+|Assign result to variable|Variable where the result of the connection will be stored|Variable|
 
 ### Open URL
 
@@ -45,14 +91,6 @@ DOMContentLoaded Waits for the HTML/Text to appear, without waiting for images.
 Network Idle consider navigation to be finished when there are no network connections for at least 500 ms.
 Commit consider navigation to be finished when the network response is received and the document started loading.||
 |Open in New Tab|If checked, opens the URL in a new tab instead of the current one.||
-|Session ID|Unique ID for this Playwright session|1|
-|Assign result to variable|Variable where the result of the connection will be stored|Variable|
-
-### Close browser
-
-Close browser and all tabs, and saves profile state. 
-|Parameters|Description|example|
-| --- | --- | --- |
 |Session ID|Unique ID for this Playwright session|1|
 |Assign result to variable|Variable where the result of the connection will be stored|Variable|
 
@@ -238,4 +276,28 @@ Change to IFRAME and set its content as default.
 Leave the body of the page as the default content.
 |Parameters|Description|example|
 | --- | --- | --- |
+|Session ID|Unique ID for this Playwright session|1|
+
+### Click link to new tab
+
+Clicks an element that would open a new tab.
+|Parameters|Description|example|
+| --- | --- | --- |
+|Data to search|Put the selector of the element to select.|Data|
+|Selector Type|||
+|Timeout (sec)|Maximum wait time (in seconds) until the element can be clicked.|30|
+|Wait Until|Loaded Waits for the entire page, including images and styles, to finish loading.
+DOMContentLoaded Waits for the HTML/Text to appear, without waiting for images.
+Network Idle consider navigation to be finished when there are no network connections for at least 500 ms.||
+|Session ID|Unique ID for this Playwright session|1|
+
+### Upload files
+
+Command to upload one or more files to an input of type file. Just complete a single value depending on how many files you want to upload.
+|Parameters|Description|example|
+| --- | --- | --- |
+|Data to search|Put the selector of the element to select.|Data|
+|Selector Type|||
+|Upload files|Select the file to upload|C:/Users/user/file1.pdf|
+|Timeout (sec)|Maximum wait time (in seconds) until the element can be clicked.|30|
 |Session ID|Unique ID for this Playwright session|1|
