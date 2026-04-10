@@ -322,7 +322,24 @@ class PlaywrightObject:
         file_chooser = fc_info.value
         file_chooser.set_files(path, timeout=timeout)
 
+    def click_and_handle_popup(self, session_id: str, timeout: int, selector: str, interaction: str = "", selector_type: str = "css"):
+        page = self.page(session_id=session_id)
+        loc = self.locator(session_id, selector, selector_type)
 
+        def handle_dialog(dialog):
+            if interaction == "Accept":
+                dialog.accept()
+            else:
+                dialog.dismiss()
+
+        page.once("dialog", handle_dialog)
+
+        try:
+            loc.click(timeout=timeout)
+
+        except Exception as e:
+            page.remove_listener("dialog", handle_dialog)
+            raise e
 
 
     def __clean_temp_profile__(self, session_id):
@@ -344,4 +361,3 @@ class PlaywrightObject:
             func(path)
         else:
             raise
-        

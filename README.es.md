@@ -87,6 +87,12 @@ Hacer click en un elemento que abrirá una nueva pestaña.
 23. Subir Archivo
 Comando para subir uno o más archivos a un input de tipo file. Solo completar un unico valor según cuántos archivos se deseen subir.
 
+24. Interactuar con alerta
+Interactua con una alerta en la pagina. Se la puede aceptar o rechazar.
+
+25. Imprimir como PDF
+Imprimir la página como PDF en Chrome. El PDF se genera en base al contenido disponible de la página. No representa una copia fiel del sitio.
+
 
 
 

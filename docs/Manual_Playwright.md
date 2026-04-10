@@ -8,7 +8,7 @@ Module with advanced functionalities for the browser that uses Playwright instea
 
 *Read this in other languages: [English](Manual_Playwright.md), [Português](Manual_Playwright.pr.md), [Español](Manual_Playwright.es.md)*
 
-![banner](imgs/Banner_Playwright.png o jpg)
+![banner](imgs/Banner_Playwright.jpg)
 ## How to install this module
 
 To install the module in Rocketbot Studio, it can be done in two ways:
@@ -300,4 +300,25 @@ Command to upload one or more files to an input of type file. Just complete a si
 |Selector Type|||
 |Upload files|Select the file to upload|C:/Users/user/file1.pdf|
 |Timeout (sec)|Maximum wait time (in seconds) until the element can be clicked.|30|
+|Session ID|Unique ID for this Playwright session|1|
+
+### Interact with alert
+
+Interact with an alert on the page. It can be accepted or dismissed.
+|Parameters|Description|example|
+| --- | --- | --- |
+|Data to search|Put the selector of the element to select.|Data|
+|Selector Type|||
+|Interaction with alert|||
+|Timeout (sec)|Maximum wait time (in seconds) until the element can be clicked.|30|
+|Session ID|Unique ID for this Playwright session|1|
+
+### Print to PDF
+
+Print the page as a PDF in Chrome. The PDF is generated based on the available content of the page. It does not represent a true copy of the site.
+|Parameters|Description|example|
+| --- | --- | --- |
+|File path and name|Select the path and name of the file to save, without the extension .pdf|path/to/file.pdf|
+|Sheet format|Select the sheet format for the PDF.||
+|Landscape mode|Check to download the pdf in landscape mode (horizontal).|True|
 |Session ID|Unique ID for this Playwright session|1|
