@@ -8,7 +8,7 @@ Módulo con funcionalidades avanzadas para el navegador que utiliza Playwright e
 
 *Read this in other languages: [English](Manual_Playwright.md), [Português](Manual_Playwright.pr.md), [Español](Manual_Playwright.es.md)*
 
-![banner](imgs/Playwright.jpg)
+![banner](imgs/Banner_Playwright.png o jpg)
 ## Como instalar este módulo
 
 Para instalar el módulo en Rocketbot Studio, se puede hacer de dos formas:
@@ -16,23 +16,71 @@ Para instalar el módulo en Rocketbot Studio, se puede hacer de dos formas:
 2. Automática: Al ingresar a Rocketbot Studio sobre el margen derecho encontrara la sección de **Addons**, seleccionar **Install Mods**, buscar el modulo deseado y presionar install.
 
 
+
+## Como usar este modulo
+Este modulo es una alternativa a los otros modulos web como WebPro donde en vez de usar la librería Selenium, usa la librería Playwright. Debido a esto ultimo, va a tener que tener algunas cosas en cuenta:
+
+1. Las dependencias del modulo no están incluidas en el modulo, y se descargarán automáticamente en la carpeta libs después de usar por primera vez algun comando.
+
+2. Si las dependencias se actualizan en una futura versión del modulo, el usuario necesitará ejecutar el comando "Validar Librerías" con la opción de "Forzar descarga" habilitada para descargar las dependencias actualizadas.
+
+3. La librería Playwright puede no funcionar si el usuario abre una nueva pestaña manualmente o usa el comando "Click en objeto" para hacer click en un botón o enlace que abre una nueva pestaña. Recomendamos usar el comando "Click link a nueva pestaña" para hacer click en dichos botones o enlaces. Si alguna pagina web abre una nueva pestaña sin siquiera hacer click, se 
+recomienda usar el comando "Esperar a Objeto" para actualizar el estado de Playwright.
+
+4. Es recomendable siempre cerrar el navegador usando el comando "Cerrar Navegador" para evitar posibles problemas al reutilizar una carpeta de perfil o una sesion.
+
+5. Para dar clicks en botones o links que descargaran un archivo, es necesario utilizar el comando "Descargar". Sin este comando, sera imposible descargar archivos.
+
+6. Para interactuar con un elemento dentro de un ShadowRoot, es necesario interactuar con este utilizando el tipo de selector `CSS`. Para obtener dicho selector, se necesita dar click derecho al elemento en el html de la pagina, seleccionar la opcion Copy y luego Copy selector. 
+
+## Sobre el comando Open Chrome:
+1. El comando "Open Chrome" abrirá una nueva instancia del navegador Chrome. Se creará una carpeta de perfil temporal para cada sesión que el usuario abra sin especificar una carpeta de perfil, y se eliminará cuando la sesión se cierre. Esto significa que cualquier 
+dato, como cookies o historial de navegación, no se guardará después de que la sesión termine.
+
+2. El comando solo puede abrir una instancia del navegador Chrome por cada carpeta de perfil, por lo que si deseas abrir múltiples instancias del navegador Chrome, se necesitara abrir cada instancia con una carpeta de perfil diferente. El navegador puede necesitar unos segundos después de cerrar para poder usar una carpeta de perfil que estaba en uso previamente.
+
+## Sobre utilizar comandos de otros modulos Web en el navegador:
+1. Es posible utilizar comandos de otros modulos Web como WebPro o el modulo nativo Web, utilizando el comando "Tomar Playwright" de WebPro. Este comando permite que dichos modulos web se conecten al puerto puesto en Puerto de Depuracion de Abrir Chrome.
+
+2. Como el navegador fue abierto por Playwright, seguira siendo necesario el utilizar comandos como "Descargar" o "Click link a nueva pestaña" para descargar archivos o hacer click en botones o links que abren una 
+nueva pestaña.
+
+3. La forma en la que Playwright interactua con los iframes es diferente a la de otros modulos web. Esto signfica que, si se requiere entrar a un iframe y dentro de este  usar comandos tanto de Playwright, como de otro modulo, sera necesario entrar al iframe usando el respectivo comando de ambos modulos.
+
+
 ## Descripción de los comandos
 
-### Abrir Navegador
+### Abrir Chrome
 
-Abre una nueva instancia del navegador.
+Abre una nueva instancia de chrome.
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
-|Navegador |Navegador a abrir|Google Chrome|
 |URL|URL que se abrirá automáticamente una vez inicializado el navegador y la página.|https://rocketbot.com/es/|
+|Ejecutable del navegador|Ruta del ejecutable de Google Chrome. Solo necesario si es que se usa dicho navegador.|C:/Program Files/Google/Chrome/Application/chrome.exe|
+|Carpeta de perfil|Ruta de la carpeta de perfil de usuario usada por navegador. Si se deja vacio, se creara uno temporal que se borrara al iniciar nuevamente sin una carpeta de perfil o al usar el comando Cerrar navegador.|C:/folder/profile/|
 |Servidor Proxy|Dirección del servidor proxy (ej., http//myproxy8080)|http://myproxy:8080|
 |Usuario Proxy|Nombre de usuario para la autenticación del proxy|username|
 |Contraseña Proxy|Contraseña para la autenticación del proxy|password|
-|Ejecutable del navegador|Ruta del ejecutable de Google Chrome. Solo necesario si es que se usa dicho navegador.|C:/Program Files/Google/Chrome/Application/chrome.exe|
-|Carpeta de perfil|Ruta de la carpeta de perfil de usuario usada por navegador. Si se deja vacio, se creara uno temporal que se borrara al iniciar nuevamente sin una carpeta de perfil o al usar el comando Cerrar navegador.|C:/folder/profile/|
-|Tiempo de espera (seg)|Tiempo máximo de espera (en segundos) para la carga de la URL inicial.|30|
 |Modo Headless|Ejecutar el navegador en modo headless (sin GUI)||
+|Puerto de Depuración|Permite que otros modulos web que utilizan Selenium tomen control del navegador. Esto se hace usando el comando Tomar Playwright del modulo Web Pro.|9222|
+|Tiempo de espera (seg)|Tiempo máximo de espera (en segundos) para la carga de la URL inicial.|30|
 |ID de Sesión|ID único para esta sesión de Playwright. Permite ejecutar múltiples navegadores o bots en paralelo sin interferencias entre sí.|1|
+
+### Validar Librerías
+
+Verifica si existen las librerías necesarias para el SO actual y permite forzar su descarga.
+|Parámetros|Descripción|ejemplo|
+| --- | --- | --- |
+|Forzar descarga|Si es marcada, eliminará las librerías existentes y las descargará de nuevo.||
+|Asignar resultado a variable|Variable donde se almacenará el resultado del comando|Variable|
+
+### Cerrar navegador
+
+Cerrar el navegador y todas las pestañas, y guarda el estado del perfil.
+|Parámetros|Descripción|ejemplo|
+| --- | --- | --- |
+|ID de Sesión|ID único para esta sesión de Playwright|1|
+|Asignar resultado a variable|Variable donde se almacenará el resultado de la conexión|Variable|
 
 ### Ir a URL
 
@@ -45,14 +93,6 @@ DOMContentLoaded Espera a que aparezca la estructura HTML sin esperar a las imá
 Network Idle Espera a que la actividad de red se detenga por completo por 500ms.
 Commit considera que la navegación ha terminado cuando se recibe la respuesta de red y el documento comenzó a cargarse.||
 |Abrir en nueva pestaña|Si está marcado, abre la URL en una nueva pestaña en lugar de la actual.||
-|ID de Sesión|ID único para esta sesión de Playwright|1|
-|Asignar resultado a variable|Variable donde se almacenará el resultado de la conexión|Variable|
-
-### Cerrar navegador
-
-Cerrar el navegador y todas las pestañas, y guarda el estado del perfil.
-|Parámetros|Descripción|ejemplo|
-| --- | --- | --- |
 |ID de Sesión|ID único para esta sesión de Playwright|1|
 |Asignar resultado a variable|Variable donde se almacenará el resultado de la conexión|Variable|
 
@@ -235,4 +275,28 @@ Cambia a un IFRAME y establece su contenido como predeterminado.
 Deja el contenido del body de la página como contenido por defecto.
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
+|ID de Sesión|ID único para esta sesión de Playwright|1|
+
+### Click link a nueva pestaña
+
+Hacer click en un elemento que abrirá una nueva pestaña.
+|Parámetros|Descripción|ejemplo|
+| --- | --- | --- |
+|Dato a buscar|Colocamos el selector del elemento a seleccionar.|Data|
+|Tipo de Selector|||
+|Tiempo de espera (seg)|Tiempo máximo de espera (en segundos) hasta que se pueda hacer click en el elemento.|30|
+|Esperar hasta|Loaded Espera a que cargue toda la página, incluyendo imágenes y estilos.
+DOMContentLoaded Espera a que aparezca la estructura HTML sin esperar a las imágenes.
+Network Idle Espera a que la actividad de red se detenga por completo por 500ms.||
+|ID de Sesión|ID único para esta sesión de Playwright|1|
+
+### Subir Archivo
+
+Comando para subir uno o más archivos a un input de tipo file. Solo completar un unico valor según cuántos archivos se deseen subir.
+|Parámetros|Descripción|ejemplo|
+| --- | --- | --- |
+|Dato a buscar|Colocamos el selector del elemento a seleccionar.|Data|
+|Tipo de Selector|||
+|Subir Archivo|Seleccionamos los archivos a subir|C:/Users/user/file1.pdf|
+|Tiempo de espera (seg)|Tiempo máximo de espera (en segundos) hasta que se pueda hacer click en el elemento.|30|
 |ID de Sesión|ID único para esta sesión de Playwright|1|
