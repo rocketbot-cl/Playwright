@@ -87,6 +87,12 @@ Clicks an element that would open a new tab.
 23. Upload files
 Command to upload one or more files to an input of type file. Just complete a single value depending on how many files you want to upload.
 
+24. Interact with alert
+Interact with an alert on the page. It can be accepted or dismissed.
+
+25. Print to PDF
+Print the page as a PDF in Chrome. The PDF is generated based on the available content of the page. It does not represent a true copy of the site.
+
 
 
 

@@ -87,6 +87,12 @@ Clica em um link que abrirá uma nova aba.
 23. Subir arquivo
 Comando para fazer upload um ou mais arquivos para um input do tipo file. Basta preencher um único valor, dependendo de quantos arquivos você deseja enviar.
 
+24. Interagir com alerta
+Interage com uma alerta na página. Pode ser aceita ou rejeitada.
+
+25. Imprimir como PDF
+Imprima a página como PDF no Chrome. O PDF é gerado com base no conteúdo disponível da página. Não representa uma cópia verdadeira do site.
+
 
 
 

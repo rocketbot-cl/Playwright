@@ -229,6 +229,12 @@ def _ensure_playwright_browsers_installed(base_path, browser_type="chromium"):
         except Exception:
             pass
 
+
+def eval_as_bool(boolean) -> bool:
+    if isinstance(boolean, str):
+        return boolean.strip().lower() in ["true", "1", "yes"]
+    else:
+        return bool(boolean)
 # --------------------------
 # Commands
 # --------------------------
@@ -651,3 +657,32 @@ if module == "upload_file":
     timeout *= 1000
 
     _PW.upload_file(session_id = session_id, timeout=timeout, path= path, selector = selector, selector_type = selector_type)
+
+
+if module == "click_and_handle_alert":
+    session_id = GetParams("session_id")
+    selector = GetParams("selector")
+    selector_type = GetParams("selector_type") or "css"
+    interaction = GetParams("interaction") or "Accept"
+    timeout = int(GetParams("timeout") or 30)
+
+    timeout *= 1000
+
+    _PW.click_and_handle_popup(session_id = session_id, timeout=timeout, interaction= interaction, selector = selector, selector_type = selector_type)
+    
+
+if module == "download_as_pdf":
+    session_id = GetParams("session_id")
+    format = GetParams("format") or "A4"
+    path = GetParams("path")
+    landscape = GetParams("landscape") or False
+
+    landscape = eval_as_bool(landscape)
+
+    if path is None:
+        raise Exception("File path cannot be left Empty")
+    path = path.replace("/", os.sep)
+    path += ".pdf"
+
+    page = _PW.page(session_id)
+    page.pdf(path=f"{path}", format=format, landscape=landscape)

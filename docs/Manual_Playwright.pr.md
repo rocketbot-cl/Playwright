@@ -8,7 +8,7 @@ Módulo com funcionalidades avançadas para o navegador que utiliza Playwright e
 
 *Read this in other languages: [English](Manual_Playwright.md), [Português](Manual_Playwright.pr.md), [Español](Manual_Playwright.es.md)*
 
-![banner](imgs/Banner_Playwright.png o jpg)
+![banner](imgs/Banner_Playwright.jpg)
 ## Como instalar este módulo
 
 Para instalar o módulo no Rocketbot Studio, pode ser feito de duas formas:
@@ -297,4 +297,25 @@ Comando para fazer upload um ou mais arquivos para um input do tipo file. Basta 
 |Tipo de Seletor|||
 |Subir arquivo|Selecionamos o arquivo a subir|C:/Users/user/file1.pdf'|
 |Tempo de espera (seg)|Tempo máximo de espera (em segundos) até que seja possível clicar no elemento.|30|
+|ID de Sessão|ID único para esta sessão do Playwright|1|
+
+### Interagir com alerta
+
+Interage com uma alerta na página. Pode ser aceita ou rejeitada.
+|Parâmetros|Descrição|exemplo|
+| --- | --- | --- |
+|Dado a buscar|Colocamos o seletor do elemento a selecionar.|Data|
+|Tipo de Seletor|||
+|Interação com alerta|||
+|Tempo de espera (seg)|Tempo máximo de espera (em segundos) até que seja possível clicar no elemento.|30|
+|ID de Sessão|ID único para esta sessão do Playwright|1|
+
+### Imprimir como PDF
+
+Imprima a página como PDF no Chrome. O PDF é gerado com base no conteúdo disponível da página. Não representa uma cópia verdadeira do site.
+|Parâmetros|Descrição|exemplo|
+| --- | --- | --- |
+|Caminho e nome do arquivo|Selecione o caminho e nome do arquivo a salvar, sem a extensão .pdf|path/to/file.pdf|
+|Formato de Folha|Selecione o formato da folha para o PDF.||
+|Modo paisagem|Marque para baixar o pdf no modo paisagem (horizontal).|True|
 |ID de Sessão|ID único para esta sessão do Playwright|1|
