@@ -317,7 +317,6 @@ class PlaywrightObject:
             loc.click()
 
         new_page = page_info.value
-        new_page.bring_to_front()
         new_page.wait_for_load_state(state=state)
         s["page"] = new_page
         s["current_context"] = new_page
