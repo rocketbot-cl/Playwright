@@ -66,8 +66,8 @@ Esperar até que a página alcance um estado de carga requerido.
 16. Obter títulos das abas
 Retorna uma lista com os títulos de todas as abas abertas no navegador.
 
-17. Mudar de aba por título
-Mudar para uma aba pelo seu título no contexto atual.
+17. Mudar de aba
+Mudar para uma aba pelo seu título ou índice no contexto atual.
 
 18. Avaliar JS.
 Avalia JS no contexto da página. Retorna o resultado da execução.
@@ -92,6 +92,9 @@ Interage com uma alerta na página. Pode ser aceita ou rejeitada.
 
 25. Imprimir como PDF
 Imprima a página como PDF no Chrome. O PDF é gerado com base no conteúdo disponível da página. Não representa uma cópia verdadeira do site.
+
+26. Fechar aba
+Permite fechar uma aba por seu título ou índice.
 
 
 

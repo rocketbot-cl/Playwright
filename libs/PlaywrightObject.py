@@ -132,7 +132,6 @@ class PlaywrightObject:
             executable_path = executable_path
         )
 
-
         s["context"] = browser
         self.new_page(session_id)
         if len(browser.pages) > 1:
@@ -279,7 +278,7 @@ class PlaywrightObject:
             titles.append(page.title())
         return titles
 
-    def change_page_by_title(self, session_id: str, page_title: str) -> None:
+    def change_page(self, session_id: str, page_title: str ="", index: str = "") -> None:
         s = self._get(session_id)
         ctx: BrowserContext = s.get("context")
 
@@ -287,25 +286,38 @@ class PlaywrightObject:
             raise Exception("Context not created. Run new_context first.")
         
         pages = ctx.pages
-        for page in pages:
-            if page.title() == page_title:
-                s["page"] = page
-                s["iframe"] = None
-                page.bring_to_front()
-                return
 
-        raise Exception("The page could not be found.")
+        if index:
+            try:
+                target_page = pages[int(index)]
+            except Exception as e:
+                raise e
+            
+        else:
+            for page in pages:
+                if page.title() == page_title:
+                    target_page = page
+                    break
+
+        if target_page:    
+            s["page"] = target_page
+            s["current_context"] = target_page
+            s["iframe"] = None
+            target_page.bring_to_front()
+            
+        else:
+            raise Exception("The page could not be found.")
 
     def click_and_switch_to_tab(self, session_id: str, state: str, timeout: int, selector: str, selector_type: str = "css"):
         s = self._get(session_id)
-
         page = self.page(session_id)
         loc = self.locator(session_id, selector, selector_type)
 
         with page.expect_popup(timeout=timeout) as page_info:
             loc.click()
 
-        new_page = page_info.value 
+        new_page = page_info.value
+        new_page.bring_to_front()
         new_page.wait_for_load_state(state=state)
         s["page"] = new_page
         s["current_context"] = new_page
@@ -340,6 +352,35 @@ class PlaywrightObject:
         except Exception as e:
             page.remove_listener("dialog", handle_dialog)
             raise e
+        
+    def close_tab(self, session_id: str, page_title: str ="", index: str = ""):
+        s = self._get(session_id)
+        ctx: BrowserContext = s.get("context")
+
+        if not ctx:
+            raise Exception("Context not created. Run new_context first.")
+        
+        pages = ctx.pages
+
+        if index:
+            try:
+                target_page = pages[int(index)]
+            except Exception as e:
+                raise e
+        
+        else:
+            for page in pages:
+                if page.title() == page_title:
+                    target_page = page
+                    break
+        
+        if target_page:
+            try:
+                target_page.close()
+            except Exception as e:
+                raise Exception(f"Tab could not be clossed. Error: {e}")
+        else:
+            raise Exception("The page could not be found.")
 
 
     def __clean_temp_profile__(self, session_id):

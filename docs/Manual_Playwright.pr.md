@@ -229,13 +229,14 @@ Retorna uma lista com os títulos de todas as abas abertas no navegador.
 |ID de Sessão|ID único para esta sessão do Playwright|1|
 |Atribuir resultado a variável|Variável onde o resultado do comando será armazenado|Variável|
 
-### Mudar de aba por título
+### Mudar de aba
 
-Mudar para uma aba pelo seu título no contexto atual.
+Mudar para uma aba pelo seu título ou índice no contexto atual.
 |Parâmetros|Descrição|exemplo|
 | --- | --- | --- |
+|Título|Título ou índice da aba a ser fechada. Use '-1' para fechar a última aba.|Title|
+|É um índice|Marque para indicar que se trata de um índice.|True|
 |ID de Sessão|ID único para esta sessão do Playwright|1|
-|Título|Título da aba para a qual deseja mudar|Variável|
 
 ### Avaliar JS.
 
@@ -318,4 +319,13 @@ Imprima a página como PDF no Chrome. O PDF é gerado com base no conteúdo disp
 |Caminho e nome do arquivo|Selecione o caminho e nome do arquivo a salvar, sem a extensão .pdf|path/to/file.pdf|
 |Formato de Folha|Selecione o formato da folha para o PDF.||
 |Modo paisagem|Marque para baixar o pdf no modo paisagem (horizontal).|True|
+|ID de Sessão|ID único para esta sessão do Playwright|1|
+
+### Fechar aba
+
+Permite fechar uma aba por seu título ou índice.
+|Parâmetros|Descrição|exemplo|
+| --- | --- | --- |
+|Título|Título ou índice da aba a ser fechada. Use '-1' para fechar a última aba.|Title|
+|É um índice|Marque para indicar que se trata de um índice.|True|
 |ID de Sessão|ID único para esta sessão do Playwright|1|
