@@ -66,8 +66,8 @@ Esperar hasta que la página alcance un estado de carga requerido.
 16. Obtener títulos de pestañas
 Devuelve una lista con los títulos de todas las pestañas abiertas en el navegador.
 
-17. Cambiar pestaña por título
-Cambiar a una pestaña por su título en el contexto actual.
+17. Cambiar pestaña
+Cambiar a una pestaña por su título o índice en el contexto actual.
 
 18. Evaluar JS.
 Evalua JS en el contexto de la página. Retorna el resultado de la ejecución.
@@ -92,6 +92,9 @@ Interactua con una alerta en la pagina. Se la puede aceptar o rechazar.
 
 25. Imprimir como PDF
 Imprimir la página como PDF en Chrome. El PDF se genera en base al contenido disponible de la página. No representa una copia fiel del sitio.
+
+26. Cerrar pestaña
+Permite cerrar una pestaña por título o índice.
 
 
 

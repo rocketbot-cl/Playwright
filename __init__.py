@@ -587,10 +587,25 @@ if module == "wait_for_load_state":
         SetVar(res, False)
     
 if module == "switch_tab":
+    page_title = GetParams("tab_title_or_index")
+    is_index = GetParams("is_index")
     session_id = GetParams("session_id")
-    page_title = GetParams("title")
 
-    _PW.change_page_by_title(session_id=session_id, page_title=page_title)
+    if isinstance(is_index, str):
+        is_index = is_index.strip().lower() in ["true", "1", "yes"]
+    else:
+        is_index = bool(is_index)
+
+    if is_index:
+        _PW.change_page(
+            session_id = session_id, 
+                index=page_title
+            )
+    else:
+        _PW.change_page(
+            session_id = session_id, 
+                page_title=page_title
+            )
 
 if module == "get_tab_titles":
     session_id = GetParams("session_id")
@@ -686,3 +701,24 @@ if module == "download_as_pdf":
 
     page = _PW.page(session_id)
     page.pdf(path=f"{path}", format=format, landscape=landscape)
+
+if module == "close_tab":
+    window_title_or_index = GetParams("tab_title_or_index")
+    is_index = GetParams("is_index")
+    session_id = GetParams("session_id")
+
+    if isinstance(is_index, str):
+        is_index = is_index.strip().lower() in ["true", "1", "yes"]
+    else:
+        is_index = bool(is_index)
+
+    if is_index:
+        _PW.close_tab(
+            session_id = session_id, 
+                index=window_title_or_index
+            )
+    else:
+        _PW.close_tab(
+            session_id = session_id, 
+                page_title=window_title_or_index, 
+            )

@@ -66,8 +66,8 @@ Wait until page reaches a required load state.
 16. Get tab titles
 Returns a list with the titles of all open tabs in the browser.
 
-17. Switch tab by title
-Switch to a tab by its title in the current context.
+17. Switch tab
+Switch to a tab by its title or index in the current context.
 
 18. Evaluate JS
 Evaluates JS code in the context of the page. Returns the result of the execution.
@@ -92,6 +92,9 @@ Interact with an alert on the page. It can be accepted or dismissed.
 
 25. Print to PDF
 Print the page as a PDF in Chrome. The PDF is generated based on the available content of the page. It does not represent a true copy of the site.
+
+26. Close tab
+Allows you to close a tab by its title or index.
 
 
 

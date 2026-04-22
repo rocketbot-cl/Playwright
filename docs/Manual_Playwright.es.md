@@ -231,13 +231,14 @@ Devuelve una lista con los títulos de todas las pestañas abiertas en el navega
 |ID de Sesión|ID único para esta sesión de Playwright|1|
 |Asignar resultado a variable|Variable donde se almacenará el resultado del comando|Variable|
 
-### Cambiar pestaña por título
+### Cambiar pestaña
 
-Cambiar a una pestaña por su título en el contexto actual.
+Cambiar a una pestaña por su título o índice en el contexto actual.
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
+|Titulo|Titulo o índice de la pestaña a cerrar. Use '-1' para cerrar la última pestaña.|Title|
+|Es un índice|Marcar para indicar que se trata de un índice.|True|
 |ID de Sesión|ID único para esta sesión de Playwright|1|
-|Título|Título de la pestaña a la que se desea cambiar|Variable|
 
 ### Evaluar JS.
 
@@ -320,4 +321,13 @@ Imprimir la página como PDF en Chrome. El PDF se genera en base al contenido di
 |Ruta y nombre del Archivo|Seleccionamos la ruta y el nombre del archivo a guardar, sin la extension .pdf|path/to/file.pdf|
 |Formato de Hoja|Seleccione el formato de hoja para el PDF.||
 |Modo Paisaje|Marcar para descargar el pdf en modo paisaje (horizontal).|True|
+|ID de Sesión|ID único para esta sesión de Playwright|1|
+
+### Cerrar pestaña
+
+Permite cerrar una pestaña por título o índice.
+|Parámetros|Descripción|ejemplo|
+| --- | --- | --- |
+|Titulo|Titulo o índice de la pestaña a cerrar. Use '-1' para cerrar la última pestaña.|Title|
+|Es un índice|Marcar para indicar que se trata de un índice.|True|
 |ID de Sesión|ID único para esta sesión de Playwright|1|

@@ -232,13 +232,14 @@ Returns a list with the titles of all open tabs in the browser.
 |Session ID|Unique ID for this Playwright session|1|
 |Assign result to variable|Variable where the result of the command will be stored|Variable|
 
-### Switch tab by title
+### Switch tab
 
-Switch to a tab by its title in the current context.
+Switch to a tab by its title or index in the current context.
 |Parameters|Description|example|
 | --- | --- | --- |
+|Title|Title or index of the tab to close. Use '-1' to close the last tab.|Title|
+|Is an index|Check to indicate that this is an index.|True|
 |Session ID|Unique ID for this Playwright session|1|
-|Title|Title of the tab you want to switch to|Variable|
 
 ### Evaluate JS
 
@@ -321,4 +322,13 @@ Print the page as a PDF in Chrome. The PDF is generated based on the available c
 |File path and name|Select the path and name of the file to save, without the extension .pdf|path/to/file.pdf|
 |Sheet format|Select the sheet format for the PDF.||
 |Landscape mode|Check to download the pdf in landscape mode (horizontal).|True|
+|Session ID|Unique ID for this Playwright session|1|
+
+### Close tab
+
+Allows you to close a tab by its title or index.
+|Parameters|Description|example|
+| --- | --- | --- |
+|Title|Title or index of the tab to close. Use '-1' to close the last tab.|Title|
+|Is an index|Check to indicate that this is an index.|True|
 |Session ID|Unique ID for this Playwright session|1|
